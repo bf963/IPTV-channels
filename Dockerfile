@@ -29,4 +29,4 @@ ENV LC_ALL C.UTF-8
 RUN chmod +x /app/start.sh
 
 # 使用启动脚本作为容器的入口点
-CMD ["/app/start.sh"]
+CMD ["/bin/bash", "/app/start.sh"]
