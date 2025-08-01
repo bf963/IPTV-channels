@@ -25,7 +25,7 @@ RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /
 ENV LC_ALL C.UTF-8
 
 # 添加启动脚本并设置执行权限
-COPY start.sh /app/start.sh
+# COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # 使用启动脚本作为容器的入口点
