@@ -17,6 +17,9 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# 配置文件路径
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config", "config.json")
+
 # 创建日志格式
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -53,7 +56,7 @@ class Config:
     
     
     @classmethod
-    def load(cls, config_file: str = os.path.join(os.path.dirname(__file__), 'config', 'config.json')) -> 'Config':
+    def load(cls, config_file: str = CONFIG_PATH) -> 'Config':
         """加载配置文件"""
         config = cls()
         if not Path(config_file).exists():
@@ -72,7 +75,7 @@ class Config:
             logger.error(f"加载配置文件失败: {str(e)}")
         return config
         
-    def save(self, config_file: str = 'config.json') -> bool:
+    def save(self, config_file: str = CONFIG_PATH) -> bool:
         """保存配置文件"""
         try:
             with open(config_file, 'w', encoding='utf-8') as f:
@@ -88,7 +91,7 @@ class Config:
 
 
 
-def load_config(config_file=os.path.join(os.path.dirname(__file__), 'config', 'config.json')):
+def load_config(config_file=CONFIG_PATH):
     """加载配置文件"""
     config = {}
     if os.path.exists(config_file):
@@ -101,7 +104,7 @@ def load_config(config_file=os.path.join(os.path.dirname(__file__), 'config', 'c
             logger.error(f'加载配置文件失败: {str(e)}')
     return config
 
-def update_config(key=None, value=None, config_file=os.path.join(os.path.dirname(__file__), 'config', 'config.json')):
+def update_config(key=None, value=None, config_file=CONFIG_PATH):
     """更新配置文件"""
     if not key or not value:
         logger.error('更新配置需要提供key和value')
