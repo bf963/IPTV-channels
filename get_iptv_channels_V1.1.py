@@ -101,7 +101,7 @@ def load_config(config_file=os.path.join(os.path.dirname(__file__), 'config', 'c
             logger.error(f'加载配置文件失败: {str(e)}')
     return config
 
-def update_config(key=None, value=None, config_file='config.json'):
+def update_config(key=None, value=None, config_file=os.path.join(os.path.dirname(__file__), 'config', 'config.json')):
     """更新配置文件"""
     if not key or not value:
         logger.error('更新配置需要提供key和value')
