@@ -13,7 +13,6 @@ ENV FLASK_APP=app.py
 ENV TIME_ZONE Asia/Shanghai
 
 RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/* && apt-get clean 
-RUN /etc/init.d/cron start
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -21,6 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN sed -i '84 s/^/#/' /usr/local/lib/python3.11/site-packages/Crypto/Cipher/DES3.py
 RUN sed -i '85 s/^/#/' /usr/local/lib/python3.11/site-packages/Crypto/Cipher/DES3.py
 
+RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo '$TIME_ZONE' > /etc/timezone
+
 ENV LC_ALL C.UTF-8
 ENTRYPOINT [ "flask"]
-CMD [ "run", "--host", "0.0.0.0" ]
+CMD [ "run", "--host", "0.0.0.0" ] && /etc/init.d/cron start
