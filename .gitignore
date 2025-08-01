@@ -13,3 +13,5 @@ venv.bak/
 .vscode/
 *.log
 config.json
+epg.xml
+sctv.*

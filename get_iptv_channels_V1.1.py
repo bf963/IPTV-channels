@@ -53,7 +53,7 @@ class Config:
     
     
     @classmethod
-    def load(cls, config_file: str = 'config.json') -> 'Config':
+    def load(cls, config_file: str = os.path.join(os.path.dirname(__file__), 'config', 'config.json')) -> 'Config':
         """加载配置文件"""
         config = cls()
         if not Path(config_file).exists():
@@ -88,7 +88,7 @@ class Config:
 
 
 
-def load_config(config_file='config.json'):
+def load_config(config_file=os.path.join(os.path.dirname(__file__), 'config', 'config.json')):
     """加载配置文件"""
     config = {}
     if os.path.exists(config_file):

@@ -38,7 +38,7 @@ CORS(
 )  # 启用CORS支持
 
 # 配置文件路径
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config", "config.json")
 
 
 def parse_channels():
@@ -106,6 +106,11 @@ def save_config():
         config_data["UserAgent"] = (
             "B700-V2A|Mozilla|5.0|ztebw(Chrome)|1.2.0;Resolution(PAL,720p,1080i) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7"
         )
+
+        # 确保config目录存在
+        config_dir = os.path.dirname(CONFIG_PATH)
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
 
         # 保存配置到文件
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
