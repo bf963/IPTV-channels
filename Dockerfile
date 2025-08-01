@@ -10,11 +10,12 @@ ENV PYTHONUNBUFFERED=0
 # 安装支持
 EXPOSE 5000
 ENV FLASK_APP=app.py
+ENV TIME_ZONE Asia/Shanghai
 
 RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/* && apt-get clean 
+RUN /etc/init.d/cron start
 
 RUN pip install --no-cache-dir -r requirements.txt
-#CMD ["python", "/app/app.py"]
 
 #/usr/local/lib/python3.11/site-packages/Crypto/Cipher/DES3.py 84、85
 RUN sed -i '84 s/^/#/' /usr/local/lib/python3.11/site-packages/Crypto/Cipher/DES3.py
