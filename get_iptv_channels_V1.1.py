@@ -325,11 +325,13 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
     
     # 使用with语句安全处理文件
     with open(os.getcwd() +'/output/sctv.txt', 'w', encoding='utf-8') as ftxt, \
-         open(os.getcwd() +'/output/sctv.m3u', 'w', encoding='utf-8') as fm3u:
+         open(os.getcwd() +'/output/sctv.m3u', 'w', encoding='utf-8') as fm3u, \
+              open(os.getcwd() +'/output/threadfin.m3u', 'w', encoding='utf-8') as fthreadfin:
         
         # 写入文件头
         ftxt.write('央视频道,#genre#\n')
         fm3u.write('#EXTM3U\n')
+        fthreadfin.write('#EXTM3U\n')
         
         # 定义频道分类处理函数
         def write_channel(category: str, condition: Callable[[str], bool]):
@@ -348,6 +350,16 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
                     
                     # 写入m3u文件
                     fm3u.write(f'#EXTINF:-1 group-title="{category}", {name}\n{url}\n')
+                    # 写入threadfin.m3u (ThreadFin输入, 标准M3U + 时移catchup)
+                    if channel[4] == '1' and channel[6]:
+                        catchup_src = channel[6]
+                        if '?' in catchup_src:
+                            catchup_src += '&playseek={utc:YmdHMS}-{utcend:YmdHMS}'
+                        else:
+                            catchup_src += '?playseek={utc:YmdHMS}-{utcend:YmdHMS}'
+                        fthreadfin.write(f'#EXTINF:-1 tvg-id="{channel[0]}" tvg-name="{name}" group-title="{category}" catchup="default" catchup-source="{catchup_src}", {name}\n{url}\n')
+                    else:
+                        fthreadfin.write(f'#EXTINF:-1 tvg-id="{channel[0]}" tvg-name="{name}" group-title="{category}", {name}\n{url}\n')
                     
                     # 记录频道信息
                     channel_ids.append([channel[0], name, channel[2]])
