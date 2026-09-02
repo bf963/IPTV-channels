@@ -148,6 +148,9 @@ STBType = config.get('STBType', '')
 STBVersion = config.get('STBVersion', '')
 UserAgent = config.get('UserAgent', '')
 Authenticator = config.get('Authenticator', '')
+EnableFccM3u = config.get('EnableFccM3u', False)  # 输出 sctv-fcc.m3u (rtp2httpd FCC 版: {utc:YmdHMS} 宏 + r2h-seek-offset + fcc 参数)
+FccIP = config.get('FccIP', '220.167.81.247')
+FccPort = config.get('FccPort', '8027')
 
 # 检查必要配置项
 required_configs = {
@@ -332,6 +335,11 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
         ftxt.write('央视频道,#genre#\n')
         fm3u.write('#EXTM3U\n')
         fku9.write('#EXTM3U\n')
+        # sctv-fcc.m3u: 配置 EnableFccM3u=true 时启用 (rtp2httpd 直播 + FCC + 回看, DIYP utc 宏)
+        ffcc = None
+        if EnableFccM3u:
+            ffcc = open(os.getcwd() + '/output/sctv-fcc.m3u', 'w', encoding='utf-8')
+            ffcc.write('#EXTM3U\n')
         
         # 定义频道分类处理函数
         def write_channel(category: str, condition: Callable[[str], bool]):
@@ -363,6 +371,16 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
                         fku9.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}" catchup="default" catchup-source="{catchup_src}",{name}\n{url}\n')
                     else:
                         fku9.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}",{name}\n{url}\n')
+                    # 写入 sctv-fcc.m3u (rtp2httpd FCC 版)
+                    if ffcc is not None:
+                        if channel[6]:
+                            catchup_src = channel[6]
+                            sep2 = '&' if '?' in catchup_src else '?'
+                            catchup_src += sep2 + 'playseek={utc:YmdHMS}-{utcend:YmdHMS}&r2h-seek-offset=28800'
+                            ffcc.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}" catchup="default" catchup-source="{catchup_src}",{name}\n')
+                        else:
+                            ffcc.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}",{name}\n')
+                        ffcc.write(f'rtp://{channel[3]}?fcc={FccIP}:{FccPort}&fcc-type=huawei\n')
                     
                     # 记录频道信息
                     channel_ids.append([channel[0], name, channel[2]])
@@ -375,6 +393,9 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
         write_channel('数字频道', lambda name: '专区' in name)
         ftxt.write('其他频道,#genre#\n')
         write_channel('其他频道', lambda name: not any(x in name for x in ['专区', '卫视', 'CCTV', 'CHC', 'CGTN']))
+        if ffcc is not None:
+            ffcc.close()
+            logger.info('sctv-fcc.m3u 已生成 (EnableFccM3u=true)')
     
     # 生成频道信息映射
     for i, channel in enumerate(channels):
