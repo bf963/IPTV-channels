@@ -148,7 +148,7 @@ STBType = config.get('STBType', '')
 STBVersion = config.get('STBVersion', '')
 UserAgent = config.get('UserAgent', '')
 Authenticator = config.get('Authenticator', '')
-EnableFccM3u = config.get('EnableFccM3u', False)  # 输出 sctv-fcc.m3u (rtp2httpd FCC 版: {utc:YmdHMS} 宏 + r2h-seek-offset + fcc 参数)
+EnableFccM3u = config.get('EnableFccM3u', False)  # 输出 sctv-fcc.m3u (统一 FCC 版: ${(b)yyyyMMddHHmmss} 北京时间宏 + fcc 参数; 酷9/mytv 通用, 无需 r2h-seek-offset)
 FccIP = config.get('FccIP', '220.167.81.247')
 FccPort = config.get('FccPort', '8027')
 
@@ -335,7 +335,7 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
         ftxt.write('央视频道,#genre#\n')
         fm3u.write('#EXTM3U\n')
         fku9.write('#EXTM3U\n')
-        # sctv-fcc.m3u: 配置 EnableFccM3u=true 时启用 (rtp2httpd 直播 + FCC + 回看, DIYP utc 宏)
+        # sctv-fcc.m3u: 配置 EnableFccM3u=true 时启用 (rtp2httpd 直播 + FCC + 回看, ${(b)...} 北京时间宏)
         ffcc = None
         if EnableFccM3u:
             ffcc = open(os.getcwd() + '/output/sctv-fcc.m3u', 'w', encoding='utf-8')
@@ -371,12 +371,12 @@ def process_channel_data(channels: List[Tuple[str, ...]]) -> Dict[str, List[str]
                         fku9.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}" catchup="default" catchup-source="{catchup_src}",{name}\n{url}\n')
                     else:
                         fku9.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}",{name}\n{url}\n')
-                    # 写入 sctv-fcc.m3u (rtp2httpd FCC 版)
+                    # 写入 sctv-fcc.m3u (rtp2httpd FCC 版, 统一 ${(b)...} 格式)
                     if ffcc is not None:
                         if channel[6]:
                             catchup_src = channel[6]
                             sep2 = '&' if '?' in catchup_src else '?'
-                            catchup_src += sep2 + 'playseek={utc:YmdHMS}-{utcend:YmdHMS}&r2h-seek-offset=28800'
+                            catchup_src += sep2 + 'playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}'
                             ffcc.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}" catchup="default" catchup-source="{catchup_src}",{name}\n')
                         else:
                             ffcc.write(f'#EXTINF:-1 tvg-name="{name}" group-title="{category}",{name}\n')
