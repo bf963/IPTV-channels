@@ -12,7 +12,7 @@ EXPOSE 5000
 ENV FLASK_APP=app.py
 ENV TIME_ZONE Asia/Shanghai
 
-RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/* && apt-get clean 
+RUN apt-get update && apt-get install -y --no-install-recommends cron iproute2 && rm -rf /var/lib/apt/lists/* && apt-get clean 
 
 RUN pip install --no-cache-dir -r requirements.txt
 
